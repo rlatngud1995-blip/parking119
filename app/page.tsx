@@ -3,14 +3,41 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+const SITE = "https://parking119.com";
 const PHONE = "010-9413-4686";
+const TEL = "tel:01094134686";
+
+const PAGE_TITLE =
+  "주차라인 도색·카스토퍼·차선규제봉·볼라드 설치";
+
+const PAGE_DESCRIPTION =
+  "주차119는 주차라인 도색, 카스토퍼, 차선규제봉, 볼라드 설치 전문업체입니다. 서울·경기·인천·충남·충북 시공 상담.";
 
 export const metadata: Metadata = {
-  title: "주차라인 도색·카스토퍼·차선규제봉·볼라드 설치",
-  description:
-    "주차119 주차라인 도색, 카스토퍼 설치, 차선규제봉 설치, 볼라드 설치. 서울·경기·인천·충남·충북 주차장 시설물 시공 상담. 010-9413-4686",
+  title: {
+    absolute:
+      "주차119 | 주차라인 도색·카스토퍼·차선규제봉·볼라드 설치",
+  },
+
+  description: PAGE_DESCRIPTION,
+
   alternates: {
-    canonical: "https://parking119.com/",
+    canonical: `${SITE}/`,
+  },
+
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: SITE,
+    siteName: "주차119",
+    title: `주차119 | ${PAGE_TITLE}`,
+    description: PAGE_DESCRIPTION,
+  },
+
+  twitter: {
+    card: "summary",
+    title: `주차119 | ${PAGE_TITLE}`,
+    description: PAGE_DESCRIPTION,
   },
 };
 
@@ -82,7 +109,7 @@ export default function HomePage() {
 
           <div className="hero-actions">
             <a
-              href="tel:01094134686"
+              href={TEL}
               className="btn btn-primary"
             >
               전화 상담 {PHONE}
@@ -117,7 +144,7 @@ export default function HomePage() {
               >
                 <Image
                   src={service.image}
-                  alt={`${service.title} 작업 사진`}
+                  alt={`${service.title} 시공 안내 이미지`}
                   width={800}
                   height={600}
                   sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 25vw"
@@ -125,6 +152,7 @@ export default function HomePage() {
 
                 <div className="service-card-content">
                   <h3>{service.title}</h3>
+
                   <p>{service.description}</p>
 
                   <span className="service-link">
@@ -142,7 +170,7 @@ export default function HomePage() {
           <div className="content-grid">
             <Image
               src="/B3F40103-F8FC-48AA-9110-5BEE366D5031.png"
-              alt="주차119 주차라인 도색 작업 사진"
+              alt="주차119 주차라인 도색 시공 안내 이미지"
               width={900}
               height={675}
               className="content-image"
@@ -169,7 +197,7 @@ export default function HomePage() {
               </p>
 
               <a
-                href="tel:01094134686"
+                href={TEL}
                 className="btn btn-primary"
               >
                 시공 문의 {PHONE}
@@ -183,6 +211,7 @@ export default function HomePage() {
         <div className="container">
           <div className="section-heading">
             <h2>주차119 시공 가능 지역</h2>
+
             <p>
               서울·경기·인천·충남·충북
               지역별 시공 안내를 확인하세요.
@@ -214,7 +243,7 @@ export default function HomePage() {
         </p>
 
         <a
-          href="tel:01094134686"
+          href={TEL}
           className="btn btn-primary"
         >
           전화 상담 {PHONE}
