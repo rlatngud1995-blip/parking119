@@ -9,6 +9,9 @@ const BRAND = "주차119";
 const PHONE = "010-9413-4686";
 const TEL = "tel:01094134686";
 
+const FAVICON =
+  "/4B52D3F3-7C49-442C-AFAB-43E3127E5C0E.png";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
 
@@ -26,6 +29,7 @@ export const metadata: Metadata = {
     "주차라인 도색",
     "주차장 라인 도색",
     "주차선 도색",
+    "주차장 도색",
     "카스토퍼 설치",
     "주차블럭 설치",
     "차선규제봉 설치",
@@ -57,6 +61,18 @@ export const metadata: Metadata = {
       "naver-site-verification":
         "c2f52a53f7338ae973abfbef582f8688b9ebaea0",
     },
+  },
+
+  icons: {
+    icon: [
+      {
+        url: FAVICON,
+        type: "image/png",
+        sizes: "any",
+      },
+    ],
+    shortcut: FAVICON,
+    apple: FAVICON,
   },
 
   openGraph: {
@@ -96,11 +112,26 @@ const SERVICES = [
 ];
 
 const REGIONS = [
-  { name: "서울", href: "/area/seoul" },
-  { name: "경기", href: "/area/gyeonggi" },
-  { name: "인천", href: "/area/incheon" },
-  { name: "충남", href: "/area/chungnam" },
-  { name: "충북", href: "/area/chungbuk" },
+  {
+    name: "서울",
+    href: "/area/seoul",
+  },
+  {
+    name: "경기",
+    href: "/area/gyeonggi",
+  },
+  {
+    name: "인천",
+    href: "/area/incheon",
+  },
+  {
+    name: "충남",
+    href: "/area/chungnam",
+  },
+  {
+    name: "충북",
+    href: "/area/chungbuk",
+  },
 ];
 
 export default function RootLayout({
@@ -143,10 +174,9 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(businessSchema).replace(
-              /</g,
-              "\\u003c"
-            ),
+            __html: JSON.stringify(
+              businessSchema
+            ).replace(/</g, "\\u003c"),
           }}
         />
       </head>
@@ -188,7 +218,9 @@ export default function RootLayout({
           </div>
         </header>
 
-        <main id="main-content">{children}</main>
+        <main id="main-content">
+          {children}
+        </main>
 
         <footer className="site-footer">
           <div className="container footer-inner">
