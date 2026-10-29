@@ -12,85 +12,8 @@ const TEL = "tel:01094134686";
 const FAVICON =
   "/4B52D3F3-7C49-442C-AFAB-43E3127E5C0E.png";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE),
-
-  title: {
-    default:
-      "주차119 | 주차라인 도색·카스토퍼·차선규제봉·볼라드 시공",
-    template: "%s | 주차119",
-  },
-
-  description:
-    "주차119는 주차라인 도색, 카스토퍼 설치, 차선규제봉 설치, 볼라드 설치 전문 시공업체입니다. 서울·경기·인천·충남·충북 시공 상담 및 견적 문의.",
-
-  keywords: [
-    "주차119",
-    "주차라인 도색",
-    "주차장 라인 도색",
-    "주차선 도색",
-    "주차장 도색",
-    "카스토퍼 설치",
-    "주차블럭 설치",
-    "차선규제봉 설치",
-    "탄력봉 설치",
-    "볼라드 설치",
-    "주차장 시설물 시공",
-    "서울 주차라인 도색",
-    "경기 주차라인 도색",
-    "인천 주차라인 도색",
-    "충남 주차라인 도색",
-    "충북 주차라인 도색",
-  ],
-
-  alternates: {
-    canonical: SITE,
-  },
-
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
-  },
-
-  verification: {
-    other: {
-      "naver-site-verification":
-        "c2f52a53f7338ae973abfbef582f8688b9ebaea0",
-    },
-  },
-
-  icons: {
-    icon: [
-      {
-        url: FAVICON,
-        type: "image/png",
-        sizes: "any",
-      },
-    ],
-    shortcut: FAVICON,
-    apple: FAVICON,
-  },
-
-  openGraph: {
-    type: "website",
-    locale: "ko_KR",
-    url: SITE,
-    siteName: BRAND,
-    title:
-      "주차119 | 주차라인 도색·카스토퍼·차선규제봉·볼라드 시공",
-    description:
-      "서울·경기·인천·충남·충북 주차라인 도색 및 주차장 시설물 설치 전문. 주차119 시공 상담.",
-  },
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-};
+const DESCRIPTION =
+  "주차119는 주차라인 도색, 카스토퍼, 차선규제봉, 볼라드 설치 전문업체입니다. 서울·경기·인천·충남·충북 시공 상담.";
 
 const SERVICES = [
   {
@@ -112,27 +35,80 @@ const SERVICES = [
 ];
 
 const REGIONS = [
-  {
-    name: "서울",
-    href: "/area/seoul",
-  },
-  {
-    name: "경기",
-    href: "/area/gyeonggi",
-  },
-  {
-    name: "인천",
-    href: "/area/incheon",
-  },
-  {
-    name: "충남",
-    href: "/area/chungnam",
-  },
-  {
-    name: "충북",
-    href: "/area/chungbuk",
-  },
+  { name: "서울", href: "/area/seoul" },
+  { name: "경기", href: "/area/gyeonggi" },
+  { name: "인천", href: "/area/incheon" },
+  { name: "충남", href: "/area/chungnam" },
+  { name: "충북", href: "/area/chungbuk" },
 ];
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE),
+
+  title: {
+    default: "주차119 | 주차라인 도색·주차장 시설물 시공",
+    template: "%s | 주차119",
+  },
+
+  description: DESCRIPTION,
+
+  applicationName: BRAND,
+
+  keywords: [
+    "주차119",
+    "주차라인 도색",
+    "주차선 도색",
+    "카스토퍼 설치",
+    "차선규제봉 설치",
+    "볼라드 설치",
+    "주차장 시설물 시공",
+  ],
+
+  alternates: {
+    canonical: SITE,
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
+  verification: {
+    other: {
+      "naver-site-verification":
+        "c2f52a53f7338ae973abfbef582f8688b9ebaea0",
+    },
+  },
+
+  icons: {
+    icon: {
+      url: FAVICON,
+      type: "image/png",
+    },
+    shortcut: FAVICON,
+    apple: FAVICON,
+  },
+
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: SITE,
+    siteName: BRAND,
+    title: "주차119 | 주차라인 도색·주차장 시설물 시공",
+    description: DESCRIPTION,
+  },
+
+  twitter: {
+    card: "summary",
+    title: "주차119 | 주차장 시설물 시공",
+    description: DESCRIPTION,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export default function RootLayout({
   children,
@@ -145,8 +121,7 @@ export default function RootLayout({
     name: BRAND,
     url: SITE,
     telephone: PHONE,
-    description:
-      "주차라인 도색, 카스토퍼 설치, 차선규제봉 설치, 볼라드 설치 전문 시공",
+    description: DESCRIPTION,
     areaServed: [
       "서울특별시",
       "경기도",
