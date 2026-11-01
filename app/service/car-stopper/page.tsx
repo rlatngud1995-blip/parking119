@@ -17,6 +17,16 @@ export const metadata: Metadata = {
   },
   description:
     "카스토퍼 설치, 교체, 수리 및 주차블록 시공 안내. 서울·경기·인천·충남·충북 지역별 상담, 작업 방법과 견적 확인. 주차119.",
+  keywords: [
+    "카스토퍼 설치",
+    "카스토퍼 교체",
+    "카스토퍼 수리",
+    "카스토퍼 시공",
+    "주차블록 설치",
+    "주차블록 교체",
+    "주차스토퍼 보수",
+    "주차장 카스토퍼",
+  ],
   alternates: {
     canonical: `${SITE}/service/car-stopper`,
   },
@@ -42,11 +52,20 @@ type Region = {
   districts: District[];
 };
 
+function makeDistricts(
+  items: [string, string][]
+): District[] {
+  return items.map(([name, slug]) => ({
+    name,
+    slug,
+  }));
+}
+
 const REGIONS: Region[] = [
   {
     name: "서울",
     slug: "seoul",
-    districts: [
+    districts: makeDistricts([
       ["강남구", "gangnam"],
       ["서초구", "seocho"],
       ["송파구", "songpa"],
@@ -72,12 +91,12 @@ const REGIONS: Region[] = [
       ["노원구", "nowon"],
       ["중랑구", "jungnang"],
       ["동대문구", "dongdaemun"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
   {
     name: "경기",
     slug: "gyeonggi",
-    districts: [
+    districts: makeDistricts([
       ["수원시", "suwon"],
       ["성남시", "seongnam"],
       ["용인시", "yongin"],
@@ -109,12 +128,12 @@ const REGIONS: Region[] = [
       ["양평군", "yangpyeong"],
       ["가평군", "gapyeong"],
       ["연천군", "yeoncheon"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
   {
     name: "인천",
     slug: "incheon",
-    districts: [
+    districts: makeDistricts([
       ["중구", "jung"],
       ["동구", "dong"],
       ["미추홀구", "michuhol"],
@@ -125,12 +144,12 @@ const REGIONS: Region[] = [
       ["서구", "seo"],
       ["강화군", "ganghwa"],
       ["옹진군", "ongjin"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
   {
     name: "충남",
     slug: "chungnam",
-    districts: [
+    districts: makeDistricts([
       ["천안시", "cheonan"],
       ["아산시", "asan"],
       ["공주시", "gongju"],
@@ -146,12 +165,12 @@ const REGIONS: Region[] = [
       ["홍성군", "hongseong"],
       ["예산군", "yesan"],
       ["태안군", "taean"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
   {
     name: "충북",
     slug: "chungbuk",
-    districts: [
+    districts: makeDistricts([
       ["청주시", "cheongju"],
       ["충주시", "chungju"],
       ["제천시", "jecheon"],
@@ -163,7 +182,7 @@ const REGIONS: Region[] = [
       ["괴산군", "goesan"],
       ["음성군", "eumseong"],
       ["단양군", "danyang"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
 ];
 
@@ -227,9 +246,38 @@ const FAQ = [
   },
 ];
 
+const BREADCRUMBS = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "홈",
+      item: SITE,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "카스토퍼 설치·교체",
+      item: `${SITE}/service/car-stopper`,
+    },
+  ],
+};
+
 export default function CarStopperPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(BREADCRUMBS).replace(
+            /</g,
+            "\\u003c"
+          ),
+        }}
+      />
+
       <section className="page-hero">
         <div className="container">
           <p
@@ -415,7 +463,7 @@ export default function CarStopperPage() {
             <h2>카스토퍼 지역별 설치·교체 안내</h2>
             <p>
               시공 상담을 원하는 지역을 선택한 뒤
-              해당 시·군·구 페이지로 이동하세요.
+              카스토퍼 전용 지역페이지로 이동하세요.
             </p>
           </div>
 
@@ -446,6 +494,7 @@ export default function CarStopperPage() {
                   }}
                 >
                   {region.name} 카스토퍼 시공
+
                   <span
                     style={{
                       marginLeft: 8,
@@ -486,7 +535,7 @@ export default function CarStopperPage() {
                       (district) => (
                         <Link
                           key={district.slug}
-                          href={`/area/${region.slug}/${district.slug}`}
+                          href={`/area/${region.slug}/${district.slug}/car-stopper`}
                           style={{
                             display: "block",
                             padding: "11px 8px",
@@ -530,9 +579,9 @@ export default function CarStopperPage() {
               lineHeight: 1.8,
             }}
           >
-            지역을 선택하면 주차라인 도색,
-            카스토퍼, 차선규제봉, 볼라드를
-            함께 안내하는 지역별 페이지로 이동합니다.
+            지역을 선택하면 해당 시·군·구의
+            카스토퍼 설치·교체·수리 전용
+            안내 페이지로 이동합니다.
           </p>
         </div>
       </section>
