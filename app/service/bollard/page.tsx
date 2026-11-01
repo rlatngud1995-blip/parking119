@@ -52,11 +52,20 @@ type Region = {
   districts: District[];
 };
 
+function makeDistricts(
+  items: [string, string][]
+): District[] {
+  return items.map(([name, slug]) => ({
+    name,
+    slug,
+  }));
+}
+
 const REGIONS: Region[] = [
   {
     name: "서울",
     slug: "seoul",
-    districts: [
+    districts: makeDistricts([
       ["강남구", "gangnam"],
       ["서초구", "seocho"],
       ["송파구", "songpa"],
@@ -82,12 +91,12 @@ const REGIONS: Region[] = [
       ["노원구", "nowon"],
       ["중랑구", "jungnang"],
       ["동대문구", "dongdaemun"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
   {
     name: "경기",
     slug: "gyeonggi",
-    districts: [
+    districts: makeDistricts([
       ["수원시", "suwon"],
       ["성남시", "seongnam"],
       ["용인시", "yongin"],
@@ -119,12 +128,12 @@ const REGIONS: Region[] = [
       ["양평군", "yangpyeong"],
       ["가평군", "gapyeong"],
       ["연천군", "yeoncheon"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
   {
     name: "인천",
     slug: "incheon",
-    districts: [
+    districts: makeDistricts([
       ["중구", "jung"],
       ["동구", "dong"],
       ["미추홀구", "michuhol"],
@@ -135,12 +144,12 @@ const REGIONS: Region[] = [
       ["서구", "seo"],
       ["강화군", "ganghwa"],
       ["옹진군", "ongjin"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
   {
     name: "충남",
     slug: "chungnam",
-    districts: [
+    districts: makeDistricts([
       ["천안시", "cheonan"],
       ["아산시", "asan"],
       ["공주시", "gongju"],
@@ -156,12 +165,12 @@ const REGIONS: Region[] = [
       ["홍성군", "hongseong"],
       ["예산군", "yesan"],
       ["태안군", "taean"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
   {
     name: "충북",
     slug: "chungbuk",
-    districts: [
+    districts: makeDistricts([
       ["청주시", "cheongju"],
       ["충주시", "chungju"],
       ["제천시", "jecheon"],
@@ -173,7 +182,7 @@ const REGIONS: Region[] = [
       ["괴산군", "goesan"],
       ["음성군", "eumseong"],
       ["단양군", "danyang"],
-    ].map(([name, slug]) => ({ name, slug })),
+    ]),
   },
 ];
 
@@ -272,7 +281,10 @@ export default function BollardPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(BREADCRUMBS),
+          __html: JSON.stringify(BREADCRUMBS).replace(
+            /</g,
+            "\\u003c"
+          ),
         }}
       />
 
@@ -463,7 +475,7 @@ export default function BollardPage() {
             <h2>볼라드 지역별 설치·교체 안내</h2>
             <p>
               시공을 문의할 지역을 선택한 뒤
-              해당 시·군·구 페이지로 이동하세요.
+              볼라드 전용 지역페이지로 이동하세요.
             </p>
           </div>
 
@@ -494,6 +506,7 @@ export default function BollardPage() {
                   }}
                 >
                   {region.name} 볼라드 시공
+
                   <span
                     style={{
                       marginLeft: 8,
@@ -535,7 +548,7 @@ export default function BollardPage() {
                       (district) => (
                         <Link
                           key={district.slug}
-                          href={`/area/${region.slug}/${district.slug}`}
+                          href={`/area/${region.slug}/${district.slug}/bollard`}
                           style={{
                             display: "block",
                             padding: "11px 8px",
@@ -579,9 +592,9 @@ export default function BollardPage() {
               lineHeight: 1.8,
             }}
           >
-            지역을 선택하면 주차라인 도색,
-            카스토퍼, 차선규제봉, 볼라드를
-            함께 안내하는 지역별 페이지로 이동합니다.
+            지역을 선택하면 해당 시·군·구의
+            볼라드 설치·교체·수리 전용
+            안내 페이지로 이동합니다.
           </p>
         </div>
       </section>
