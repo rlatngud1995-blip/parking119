@@ -8,7 +8,7 @@ const SERVICES = [
   "car-stopper",
   "traffic-post",
   "bollard",
-];
+] as const;
 
 const REGIONS: Record<string, string[]> = {
   seoul: [
@@ -120,6 +120,7 @@ const REGIONS: Record<string, string[]> = {
 };
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // 1. 홈페이지
   const home: MetadataRoute.Sitemap = [
     {
       url: SITE,
@@ -128,6 +129,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  // 2. 시공 카테고리 4개
   const services: MetadataRoute.Sitemap =
     SERVICES.map((service) => ({
       url: `${SITE}/service/${service}`,
@@ -135,6 +137,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     }));
 
+  // 3. 광역 지역 5개
   const regions: MetadataRoute.Sitemap =
     Object.keys(REGIONS).map((region) => ({
       url: `${SITE}/area/${region}`,
@@ -142,6 +145,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     }));
 
+  // 4. 시·군·구 기본 페이지 92개
   const districts: MetadataRoute.Sitemap =
     Object.entries(REGIONS).flatMap(
       ([region, districtList]) =>
@@ -152,10 +156,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
         }))
     );
 
-  return [
+  // 5. 지역별 시공 카테고리 전용 페이지 368개
+  const districtServices: MetadataRoute.Sitemap =
+    Object.entries(REGIONS).flatMap(
+      ([region, districtList]) =>
+        districtList.flatMap((district) =>
+          SERVICES.map((service) => ({
+            url: `${SITE}/area/${region}/${district}/${service}`,
+            changeFrequency: "monthly" as const,
+            priority: 0.7,
+          }))
+        )
+    );
+
+  // 6. 중복 URL 제거
+  const allPages: MetadataRoute.Sitemap = [
     ...home,
     ...services,
     ...regions,
     ...districts,
+    ...districtServices,
   ];
+
+  return Array.from(
+    new Map(
+      allPages.map((page) => [page.url, page])
+    ).values()
+  );
 }
