@@ -518,7 +518,7 @@ def make_og(path):
 def write_rss():
     now = datetime.datetime.now(datetime.timezone.utc)
     items = "".join(f"<item><title>{E(t)}</title><link>{url(p)}</link><pubDate>{now:%a, %d %b %Y %H:%M:%S} +0000</pubDate></item>"
-                    for p, pr, t in PAGES[:110])
+                    for p, pr, t in PAGES)
     with open(os.path.join(PUBLIC, "rss.xml"), "w", encoding="utf-8") as f:
         f.write(f'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>{E(C.BRAND)}</title>'
                 f'<link>{url("/")}</link><description>주차라인 도색·주차장 시설물 시공</description>{items}</channel></rss>\n')
