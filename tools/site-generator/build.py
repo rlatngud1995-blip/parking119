@@ -183,7 +183,18 @@ def chrome():
     return header, footer, floatc
 
 
+def fit80(desc):
+    """네이버 권장: 설명문 80자 이내"""
+    if len(desc) <= 80:
+        return desc
+    short = desc.replace(f" 상담 {C.PHONE}", "").replace(f". 상담 {C.PHONE}", ".").replace(f" {C.PHONE}", "")
+    if len(short) <= 80:
+        return short
+    return short[:79].rsplit(" ", 1)[0] + "…"
+
+
 def layout(path, title, desc, body, lds, priority="0.5"):
+    desc = fit80(desc)
     DATA["pages"][path] = {"title": title, "description": desc, "body": body.strip(),
                            "ld": lds, "priority": float(priority)}
     PAGES.append((path, priority, title))
@@ -234,7 +245,7 @@ def build_home():
 {cta_html("주차장 시설물 시공 상담")}
 '''
     title = f"{C.BRAND} | 주차라인 도색·카스토퍼·차선규제봉·볼라드 설치"
-    desc = "주차라인 도색, 주차선 재도색, 카스토퍼·차선규제봉·볼라드 설치 전문 주차119. 서울·경기·인천·충남·충북 아파트·상가·공장 주차장 시공 상담 " + C.PHONE
+    desc = f"주차라인 도색·카스토퍼·차선규제봉·볼라드 설치 전문 {C.BRAND}. 서울·경기·인천·충남·충북 시공 상담 {C.PHONE}"
     site_ld = {"@context": "https://schema.org", "@type": "WebSite", "name": C.BRAND, "alternateName": C.BRAND_EN, "url": url("/")}
     layout("/", title, desc, body, [site_ld, faq_ld], "1.0")
 
@@ -274,7 +285,7 @@ def build_service(s):
 {cta_html(sv["name"] + " 상담")}
 '''
     title = f"{sv['tail']} | {C.BRAND}"
-    desc = f"{sv['name']} 전문 {C.BRAND}. {sv['short']}. 서울·경기·인천·충남·충북 시공 상담 {C.PHONE}"
+    desc = f"{sv['name']} 전문 {C.BRAND}. 서울·경기·인천·충남·충북 {sv['aka'].split(', ')[1]} 시공 상담 {C.PHONE}"
     layout(p_service(s), title, desc, body,
            [crumb_ld, service_ld(sv["name"], "서울·경기·인천·충남·충북", p_service(s)), faq_ld], "0.9")
 
@@ -314,7 +325,7 @@ def build_region(r):
 {cta_html(rg["name"] + " 주차장 시공 상담")}
 '''
     title = f"{rg['name']} 주차라인 도색·카스토퍼·볼라드 시공 | {C.BRAND}"
-    desc = f"{rg['full']} 주차라인 도색, 주차선 재도색, 카스토퍼·차선규제봉·볼라드 설치. {len(rg['districts'])}개 시·군·구 시공 상담 {C.PHONE}"
+    desc = f"{rg['full']} {len(rg['districts'])}개 시·군·구 주차라인 도색·카스토퍼·볼라드 시공. 상담 {C.PHONE}"
     layout(p_region(r), title, desc, body,
            [crumb_ld, service_ld("주차장 시설물 시공", rg["full"], p_region(r)), faq_ld], "0.8")
 
@@ -371,7 +382,7 @@ def build_district(r, d, dname, t):
 {cta_html(loc + " 시공 상담")}
 """
     title = pick(key + "title", TITLE_DISTRICT).format(**c)
-    desc = f"{loc}({c['a1']}·{c['a2']}·{c['a3']}) 주차라인 도색, 카스토퍼·차선규제봉·볼라드 설치. {ty['sites'][0]}·{ty['sites'][1]} 주차장 시공 상담 {C.PHONE}"
+    desc = f"{loc} {c['a1']}·{c['a2']}·{c['a3']} 주차라인 도색·카스토퍼·볼라드 시공. 상담 {C.PHONE}"
     layout(p_district(r, d), title, desc, body,
            [crumb_ld, service_ld("주차장 시설물 시공", f"{rg['full']} {dname}", p_district(r, d)), faq_ld], "0.7")
 
@@ -424,9 +435,7 @@ def build_ds(r, d, dname, t, s):
 {cta_html(f"{loc} {sv['name']} 상담")}
 """
     title = pick(key + "title", TITLE_DS).format(**c)
-    desc = f"{intro} {C.PHONE}"
-    if len(desc) > 150:
-        desc = intro[:120].rsplit(" ", 1)[0] + "… " + C.PHONE
+    desc = f"{loc} {sv['name']}. {c['a1']}·{c['a2']} {c['site']} 주차장 {sx['alt']}. 상담 {C.PHONE}"
     layout(p_ds(r, d, s), title, desc, body,
            [crumb_ld, service_ld(sv["name"], f"{rg['full']} {dname}", p_ds(r, d, s)), faq_ld], "0.6")
 
