@@ -5,6 +5,8 @@ import config as C
 from content import (REGIONS, REGION_ORDER, TYPES, TYPE_SERVICE, SERVICES, SERVICE_ORDER,
                      PROCESS, PRICE_FACTORS, HOME_FAQ)
 from local import AREAS, SV, INTRO_TPL, TITLE_DS, TITLE_DISTRICT
+from guide import DEEP, GUIDES, PHOTO_GUIDE
+from urllib.parse import quote
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(ROOT, "..", ".."))
@@ -67,6 +69,19 @@ def call_btn(label="전화 상담", cls="btn btn-call"):
     return f'<a class="{cls}" href="tel:{TEL}">{ICONS["phone"]}<span>{E(label)} {E(C.PHONE)}</span></a>'
 
 
+SMS_BODY = "[주차119 사진 견적]\n현장 위치: \n작업 내용: \n주차면·수량: \n(현장 사진 3장 첨부)"
+
+
+def sms_btn(label="문자로 사진 견적", cls="btn btn-sms"):
+    return (f'<a class="{cls}" href="sms:{TEL}?&body={quote(SMS_BODY)}">'
+            f'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2z"/></svg>'
+            f'<span>{E(label)}</span></a>')
+
+
+def updated_html():
+    return f'<p class="updated">최종 수정 {TODAY} · {E(C.BRAND)} 시공팀</p>'
+
+
 def breadcrumb(items):
     """items: [(name, path)]"""
     lis = []
@@ -122,9 +137,67 @@ def works_html(service=None, region=None, district=None, title="시공 사례"):
 
 
 def cta_html(text):
+    steps = "".join(f'<li><b>{E(t)}</b><span>{E(d)}</span></li>' for t, d in PHOTO_GUIDE)
     return (f'<section class="cta"><div class="wrap"><h2>{E(text)}</h2>'
-            f'<p>위치와 규모, 현장 사진만 알려주시면 작업 방법과 견적을 안내해 드립니다.</p>'
-            f'{call_btn("시공 문의", "btn btn-call big")}</div></section>')
+            f'<p>사진 3장만 문자로 보내주시면 작업 방법과 예상 견적을 안내해 드립니다.</p>'
+            f'<ol class="photo-steps">{steps}</ol>'
+            f'<div class="cta-btns">{call_btn("시공 문의", "btn btn-call big")}{sms_btn("문자로 사진 보내기", "btn btn-sms big")}</div>'
+            f'<p class="hours">상담 시간 {E(C.HOURS)}</p></div></section>')
+
+
+def table_html(head, rows):
+    th = "".join(f"<th scope=\"col\">{E(h)}</th>" for h in head)
+    tr = "".join("<tr>" + "".join(f"<td>{E(c)}</td>" for c in r) + "</tr>" for r in rows)
+    return f'<div class="tbl"><table><thead><tr>{th}</tr></thead><tbody>{tr}</tbody></table></div>'
+
+
+def deep_html(s):
+    d = DEEP[s]
+    sv = SERVICES[s]
+    out = [f'<section class="sec alt"><div class="wrap"><h2>이럴 때 {E(josa(sv["name"], "이가"))} 필요해요</h2><ul class="checks">'
+           + "".join(f"<li>{E(w)}</li>" for w in d["when"]) + "</ul></div></section>"]
+    out.append(f'<section class="sec"><div class="wrap"><h2>{E(d["compare_title"])}</h2>{table_html(d["compare_head"], d["compare"])}'
+               f'<p class="note">{E(d["compare_note"])}</p></div></section>')
+    if d.get("spec"):
+        more = ""
+        g = next((k for k, v in GUIDES.items() if v["service"] == s), None)
+        if g:
+            more = f' <a href="/guide/{g}">자세히 보기</a>'
+        out.append(f'<section class="sec alt"><div class="wrap"><h2>{E(d["spec_title"])}</h2>{table_html(d["spec_head"], d["spec"])}'
+                   f'<p class="note">{E(d["spec_note"])}{more}</p></div></section>')
+    rows = "".join(f'<li><b>{E(t)}</b><span>{E(x)}</span></li>' for t, x in d["method"])
+    colors = f'<p class="para mt">{E(d["colors"])}</p>' if d.get("colors") else ""
+    out.append(f'<section class="sec"><div class="wrap"><h2>{E(d["method_title"])}</h2><ul class="items">{rows}</ul>{colors}</div></section>')
+    return "\n".join(out)
+
+
+def build_guide(slug):
+    g = GUIDES[slug]
+    sv = SERVICES[g["service"]]
+    path = f"/guide/{slug}"
+    crumb, crumb_ld = breadcrumb([("홈", "/"), (g["h1"], path)])
+    h, a, b, rows = g["table"]
+    secs = "".join(f'<h2>{E(t)}</h2><p>{E(x)}</p>' for t, x in g["sections"])
+    body = f'''
+{crumb}
+<section class="hero small"><div class="wrap">
+  <p class="eyebrow">{E(C.BRAND)} 시공 가이드</p>
+  <h1>{E(g["h1"])}</h1>
+  <p class="lead">{E(g["desc"])}</p>
+  <div class="hero-btns">{call_btn()}{sms_btn()}</div>
+</div></section>
+<section class="sec"><div class="wrap prose">
+{table_html((h, a, b), rows)}
+{secs}
+<p class="para mt"><a href="{p_service(g["service"])}">{E(sv["name"])} 시공 안내 보기 →</a></p>
+{updated_html()}
+</div></section>
+{cta_html(sv["name"] + " 상담")}
+'''
+    art = {"@context": "https://schema.org", "@type": "Article", "headline": g["h1"], "description": g["desc"],
+           "dateModified": TODAY, "author": {"@type": "Organization", "name": C.BRAND},
+           "publisher": {"@id": url("/#business")}, "mainEntityOfPage": url(path)}
+    layout(path, g["title"] + " | " + C.BRAND, g["desc"], body, [crumb_ld, art], "0.6")
 
 
 def business_ld():
@@ -176,10 +249,11 @@ def chrome():
     <ul class="foot-regions">{regions_nav}</ul>
     <p class="foot-info">{" ".join(foot_info)}</p>
     <p class="foot-info"><span>전화 <a href="tel:{TEL}">{E(C.PHONE)}</a></span> {" ".join(links)}</p>
-    <p class="foot-links"><a href="/privacy">개인정보처리방침</a></p>
+    <p class="foot-links"><a href="/guide/parking-space-size">주차구획 크기 기준</a> · <a href="/guide/bollard-standard">볼라드 설치 기준</a> · <a href="/privacy">개인정보처리방침</a></p>
     <p class="copy">© {datetime.date.today().year} {E(C.BRAND)}. All rights reserved.</p>
   </div>'''
-    floatc = f'<a class="float-call" href="tel:{TEL}" aria-label="{E(C.BRAND)} 전화 상담">{ICONS["phone"]}<span>전화 상담</span></a>'
+    floatc = (f'<div class="float-bar"><a class="float-call" href="tel:{TEL}" aria-label="{E(C.BRAND)} 전화 상담">{ICONS["phone"]}<span>전화 상담</span></a>'
+              f'{sms_btn("문자 견적", "float-sms")}</div>')
     return header, footer, floatc
 
 
@@ -232,7 +306,7 @@ def build_home():
     <p class="eyebrow">서울 · 경기 · 인천 · 충남 · 충북</p>
     <h1>주차라인 도색부터<br>주차장 안전시설물 설치까지</h1>
     <p class="lead">주차라인 도색, 카스토퍼·차선규제봉·볼라드 설치를 한 업체에서 진행합니다. 아파트, 상가, 공장, 공공시설 주차장 모두 현장 상태를 확인하고 맞는 방법으로 시공합니다.</p>
-    <div class="hero-btns">{call_btn()}<a class="btn btn-ghost" href="#services">시공 서비스 보기</a></div>
+    <div class="hero-btns">{call_btn()}{sms_btn()}<a class="btn btn-ghost" href="#services">시공 서비스 보기</a></div>
   </div>
 </section>
 <section class="sec" id="services"><div class="wrap"><h2>{E(C.BRAND)} 주요 시공 서비스</h2>{service_cards(p_service)}</div></section>
@@ -264,16 +338,18 @@ def build_service(s):
         f'<div class="region"><h3><a href="{p_region(r)}">{E(REGIONS[r]["name"])} {E(sv["name"])}</a></h3>'
         f'{region_chips(r, lambda d, r=r: p_ds(r, d, s))}</div>' for r in REGION_ORDER)
     others = "".join(f'<li><a href="{p_service(o)}">{E(SERVICES[o]["name"])}</a></li>' for o in SERVICE_ORDER if o != s)
-    faq, faq_ld = faq_html(sv["faq"])
+    faq, faq_ld = faq_html(sv["faq"] + SV[s]["faq_extra"] + DEEP[s]["faq_more"])
+    deep = deep_html(s)
     body = f'''
 {crumb}
 <section class="hero small"><div class="wrap">
   <p class="eyebrow">{E(sv["aka"])}</p>
   <h1>{E(sv["tail"])}</h1>
   <p class="lead">{E(sv["intros"][0].format(loc="서울·경기·인천·충남·충북"))}</p>
-  <div class="hero-btns">{call_btn()}</div>
+  <div class="hero-btns">{call_btn()}{sms_btn()}</div>
 </div></section>
 <section class="sec"><div class="wrap"><h2>{E(sv["name"])} 작업 범위</h2><ul class="items">{items}</ul></div></section>
+{deep}
 <section class="sec alt"><div class="wrap"><h2>현장별 시공 포인트</h2><ul class="sites">{type_rows}</ul></div></section>
 <section class="sec"><div class="wrap"><h2>시공 전 확인 사항</h2><ul class="checks">{checks}</ul></div></section>
 {works_html(service=s, title=sv["name"] + " 시공 사례")}
@@ -282,6 +358,7 @@ def build_service(s):
 {faq}
 <section class="sec alt"><div class="wrap"><h2>지역별 {E(sv["name"])}</h2>{regions}</div></section>
 <section class="sec"><div class="wrap"><h2>함께 많이 하는 작업</h2><ul class="chips">{others}</ul></div></section>
+<section class="sec"><div class="wrap">{updated_html()}</div></section>
 {cta_html(sv["name"] + " 상담")}
 '''
     title = f"{sv['tail']} | {C.BRAND}"
@@ -314,7 +391,7 @@ def build_region(r):
   <p class="eyebrow">{E(rg["full"])} 전 지역</p>
   <h1>{E(rg["name"])} 주차라인 도색·주차장 시설물 시공</h1>
   <p class="lead">{E(rg["about"])}</p>
-  <div class="hero-btns">{call_btn()}</div>
+  <div class="hero-btns">{call_btn()}{sms_btn()}</div>
 </div></section>
 <section class="sec"><div class="wrap"><h2>{E(rg["name"])} 시공 서비스</h2>{service_cards(p_service)}</div></section>
 {works_html(title=E(C.BRAND) + " 시공 전·후 사례")}
@@ -369,7 +446,7 @@ def build_district(r, d, dname, t):
   <p class="eyebrow">{E(rg["full"])} {E(dname)} · {E(" · ".join(c["areas"]))}</p>
   <h1>{E(loc)} 주차라인 도색·주차장 시설물 시공</h1>
   <p class="lead">{E(josa(dname, "은는"))} {E(c["desc"])}</p>
-  <div class="hero-btns">{call_btn()}</div>
+  <div class="hero-btns">{call_btn()}{sms_btn()}</div>
 </div></section>
 <section class="sec"><div class="wrap"><h2>{E(dname)} 시공 서비스</h2>{service_cards(lambda s: p_ds(r, d, s))}</div></section>
 <section class="sec alt"><div class="wrap"><h2>{E(dname)} 현장별 시공 포인트</h2>
@@ -418,7 +495,7 @@ def build_ds(r, d, dname, t, s):
   <p class="eyebrow">{E(rg["full"])} {E(dname)} · {E(sx["aka2"])}</p>
   <h1>{E(loc)} {E(sv["name"])}</h1>
   <p class="lead">{E(intro)}</p>
-  <div class="hero-btns">{call_btn()}</div>
+  <div class="hero-btns">{call_btn()}{sms_btn()}</div>
 </div></section>
 <section class="sec"><div class="wrap">
   <h2>{E(dname)} {E(sv["name"])} 현장 포인트</h2>
@@ -546,6 +623,8 @@ def main():
             build_district(r, d, dname, t)
             for s in SERVICE_ORDER:
                 build_ds(r, d, dname, t, s)
+    for g in GUIDES:
+        build_guide(g)
     build_privacy()
     build_404()
     header, footer, floatc = chrome()
